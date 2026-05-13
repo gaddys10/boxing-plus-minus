@@ -1,5 +1,6 @@
 import { useRouter, Stack } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, Animated, useWindowDimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Haptics from 'expo-haptics';
@@ -43,10 +44,11 @@ export default function RoundScoringScreen() {
             if (side === 'left') {
                 return currentScore + 1;
             }
-
             return currentScore - 1;
         });
     };
+
+    const absoluteScore = Math.abs(score);
 
     return (
         
@@ -60,6 +62,12 @@ export default function RoundScoringScreen() {
                     handleScorePress('left');
                 }}
             >
+                { score > 0 &&
+                    <Text style={styles.leftScore}>
+                        {score}
+                        <Ionicons name="caret-back" size={24} color="white" />
+                    </Text>
+                }
                 <Text style={styles.leftName}>Fighter 1</Text>
                 <Animated.Text 
                     style={[
@@ -81,6 +89,11 @@ export default function RoundScoringScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 handleScorePress('right');
             }}>
+                { score < 0 &&
+                    <Text style={styles.rightScore}>
+                        <Ionicons name="caret-forward" size={24} color="white" />{absoluteScore}
+                    </Text>
+                }
                 <Text style={styles.rightName}>Fighter 2</Text>
                 <Animated.Text 
                     style={[
@@ -164,13 +177,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 50,
     },
-    rightName: {
-        color: '#fff',
-        fontSize: 24,
-        fontWeight: '500',
-        textAlign: 'center',
-        marginTop: 50,
-    },
+
     plusSign: {
         position: 'absolute',
         top: '32%',
@@ -185,6 +192,14 @@ const styles = StyleSheet.create({
         left: '50%',
 
     },
+    leftScore: {
+        position: 'absolute',
+        top: 50,
+        right: 30,
+        color: '#fff',
+        fontSize: 24,
+        textAlign: 'right'
+    },
     rightkd: {
         bottom: -10,
         left: '40%',
@@ -195,6 +210,20 @@ const styles = StyleSheet.create({
         width: '50%',
         position: 'absolute',
         right: 0,
+    },
+    rightName: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: 50,
+    },
+    rightScore: {
+        position: 'absolute',
+        top: 50,
+        left: 30,
+        color: '#fff',
+        fontSize: 24,
     },
     title: {
         color: '#000',
