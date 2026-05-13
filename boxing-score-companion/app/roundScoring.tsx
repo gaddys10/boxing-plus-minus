@@ -1,4 +1,4 @@
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, Animated, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
@@ -10,6 +10,9 @@ export default function RoundScoringScreen() {
     const { height } = useWindowDimensions();
     const [winner, setWinner] = useState<"left" | "right" | "even">("even");
     const [score, setScore] = useState(0);
+    const params = useLocalSearchParams();
+
+    const round = params.roundNumber;
 
     const leftPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
     const rightPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
@@ -19,9 +22,7 @@ export default function RoundScoringScreen() {
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
         // Cleanup: restore default orientation when leaving screen
-        return () => {
-            ScreenOrientation.unlockAsync();
-        };
+        return () => { ScreenOrientation.unlockAsync(); };
     }, []);
 
     const pulseAnimation = (animation: Animated.Value) => {
@@ -41,14 +42,12 @@ export default function RoundScoringScreen() {
 
     const handleScorePress = (side: 'left' | 'right') => {
         setScore((currentScore) => {
-            if (side === 'left') {
-                return currentScore + 1;
-            }
+            if (side === 'left') { return currentScore + 1; }
             return currentScore - 1;
         });
     };
 
-    const absoluteScore = Math.abs(score);
+    const absScore = Math.abs(score);
 
     return (
         
@@ -63,24 +62,26 @@ export default function RoundScoringScreen() {
                 }}
             >
                 { score > 0 &&
-                    <Text style={styles.leftScore}>
-                        {score}
-                        <Ionicons name="caret-back" size={24} color="white" />
-                    </Text>
+                    <Text style={styles.leftScore}>{score}<Ionicons name="caret-back" size={24} color="white" /></Text>
                 }
                 <Text style={styles.leftName}>Fighter 1</Text>
-                <Animated.Text 
-                    style={[
-                        styles.plusSign, 
-                        { transform: [{ scale: leftPulseAnim }] }
-                    ]}
-                >
+                <Animated.Text style={[ styles.plusSign, { transform: [{ scale: leftPulseAnim }] }]} >
                     +
                 </Animated.Text>
-                <Pressable style={[styles.kdButton, styles.leftkd]}>
-                    <Text>
-                        Hold for Knockdown
-                    </Text>
+                <Pressable
+                    style={[styles.kdButton, styles.leftkd]}
+                    onPress={() => {
+                        pulseAnimation(leftPulseAnim);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        handleScorePress('left');
+                    }}
+                    onLongPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                        setScore((currentScore) => currentScore + 30);
+                    }}
+                    delayLongPress={3500}
+                >
+                    <Text>Hold for Knockdown</Text>
                 </Pressable>
             </Pressable>
 
@@ -90,31 +91,34 @@ export default function RoundScoringScreen() {
                 handleScorePress('right');
             }}>
                 { score < 0 &&
-                    <Text style={styles.rightScore}>
-                        <Ionicons name="caret-forward" size={24} color="white" />{absoluteScore}
-                    </Text>
+                    <Text style={styles.rightScore}><Ionicons name="caret-forward" size={24} color="white" />{absScore}</Text>
                 }
                 <Text style={styles.rightName}>Fighter 2</Text>
-                <Animated.Text 
-                    style={[
-                        styles.plusSign, 
-                        { transform: [{ scale: rightPulseAnim }] }
-                    ]}
-                >
+                <Animated.Text style={[styles.plusSign, { transform: [{ scale: rightPulseAnim }] }]} >
                     +
                 </Animated.Text>
-                <Pressable 
-                    style={[styles.kdButton, styles.rightkd, {  height: height * 0.1 }]}>
-                    <Text>
-                        Hold for Knockdown
-                    </Text>
+                <Pressable
+                    style={[styles.kdButton, styles.rightkd, {  height: height * 0.1 }]}
+                    onPress={() => {
+                        pulseAnimation(rightPulseAnim);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        handleScorePress('right');
+                    }}
+                    onLongPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                        setScore((currentScore) => currentScore - 30);
+                    }}
+                    delayLongPress={3500}
+                >
+                    <Text>Hold for Knockdown</Text>
                 </Pressable>
             </Pressable>
             <Pressable
                 style={styles.exitButton}
-                onPress={() => router.back()}
+                onLongPress={() => {router.back(); }}
+                delayLongPress={4000}
             >
-                <Text style={styles.exitButtonText}>Hold to Exit Round</Text>
+                <Text style={styles.exitButtonText}>Hold to Exit Round {round}</Text>
             </Pressable>
         </View>
     );
