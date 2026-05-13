@@ -1,14 +1,17 @@
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
-import { View, Text, Pressable, StyleSheet, Vibration} from 'react-native';
-import { useEffect } from 'react';
+import { useRouter, Stack } from 'expo-router';
+import { View, Text, Pressable, StyleSheet, Animated, useWindowDimensions } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Haptics from 'expo-haptics';
-import { useWindowDimensions } from 'react-native';
 
 export default function RoundScoringScreen() {
     const router = useRouter();
-    const { roundNumber } = useLocalSearchParams();
-    const { width, height } = useWindowDimensions();
+    const { height } = useWindowDimensions();
+    const [winner, setWinner] = useState<"left" | "right" | "even">("even");
+    const [score, setScore] = useState(0);
+
+    const leftPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
+    const rightPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
 
     useEffect(() => {
         // Lock to landscape mode
@@ -20,6 +23,31 @@ export default function RoundScoringScreen() {
         };
     }, []);
 
+    const pulseAnimation = (animation: Animated.Value) => {
+        Animated.sequence([
+            Animated.timing(animation, {
+                toValue: 1.3,
+                duration: 100,
+                useNativeDriver: true,
+            }),
+            Animated.timing(animation, {
+                toValue: 1,
+                duration: 100,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    };
+
+    const handleScorePress = (side: 'left' | 'right') => {
+        setScore((currentScore) => {
+            if (side === 'left') {
+                return currentScore + 1;
+            }
+
+            return currentScore - 1;
+        });
+    };
+
     return (
         
         <View style={styles.container}>
@@ -27,19 +55,41 @@ export default function RoundScoringScreen() {
             <Pressable 
                 style={styles.leftArea}
                 onPress={() => {
+                    pulseAnimation(leftPulseAnim);
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    handleScorePress('left');
                 }}
             >
-                <View style={[styles.kdButton, styles.leftkd]}>
+                <Text style={styles.leftName}>Fighter 1</Text>
+                <Animated.Text 
+                    style={[
+                        styles.plusSign, 
+                        { transform: [{ scale: leftPulseAnim }] }
+                    ]}
+                >
+                    +
+                </Animated.Text>
+                <Pressable style={[styles.kdButton, styles.leftkd]}>
                     <Text>
                         Hold for Knockdown
                     </Text>
-                </View>
+                </Pressable>
             </Pressable>
 
             <Pressable style={styles.rightArea} onPress={() => {
+                pulseAnimation(rightPulseAnim);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                handleScorePress('right');
             }}>
+                <Text style={styles.rightName}>Fighter 2</Text>
+                <Animated.Text 
+                    style={[
+                        styles.plusSign, 
+                        { transform: [{ scale: rightPulseAnim }] }
+                    ]}
+                >
+                    +
+                </Animated.Text>
                 <Pressable 
                     style={[styles.kdButton, styles.rightkd, {  height: height * 0.1 }]}>
                     <Text>
@@ -56,10 +106,6 @@ export default function RoundScoringScreen() {
         </View>
     );
 }
-
-RoundScoringScreen.screenOptions = {
-    headerShown: false,
-};
 
 const styles = StyleSheet.create({
     container: {
@@ -100,7 +146,6 @@ const styles = StyleSheet.create({
         height: 50,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        left: '50%',
         transform: [{ translateX: -75 }],
         backgroundColor: 'gold',
         paddingTop: 5
@@ -112,11 +157,37 @@ const styles = StyleSheet.create({
         width: '50%',
         position: 'absolute',
     },
+    leftName: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: 50,
+    },
+    rightName: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: 50,
+    },
+    plusSign: {
+        position: 'absolute',
+        top: '32%',
+        left: '40%',
+        transform: [{ translateX: -50 }, { translateY: -50 }],
+        fontSize: 120,
+        color: 'white',
+        fontWeight: 'bold',
+    },
     leftkd: {
         bottom: -20,
+        left: '50%',
+
     },
     rightkd: {
         bottom: -10,
+        left: '40%',
     },
     rightArea: {
         backgroundColor: '#b63030',
@@ -125,13 +196,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
     },
-
-    
     title: {
         color: '#000',
         fontSize: 28,
         fontWeight: '700',
         marginBottom: 20,
     },
+    fillOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    }
 
 });
