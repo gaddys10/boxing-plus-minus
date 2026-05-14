@@ -8,12 +8,13 @@ import * as Haptics from 'expo-haptics';
 export default function RoundScoringScreen() {
     const router = useRouter();
     const { height } = useWindowDimensions();
-    const [winner, setWinner] = useState<"left" | "right" | "even">("even");
     const [score, setScore] = useState(0);
     const [leftDeductions, setLeftDeductions] = useState(0);
     const [rightDeductions, setRightDeductions] = useState(0);
     const [leftKnockdowns, setLeftKnockdowns] = useState(0);
     const [rightKnockdowns, setRightKnockdowns] = useState(0);
+    const [leftScore, setLeftScore] = useState(10);
+    const [rightScore, setRightScore] = useState(10);
     const params = useLocalSearchParams();
 
     const round = params.roundNumber;
@@ -50,6 +51,19 @@ export default function RoundScoringScreen() {
         // Cleanup: restore default orientation when leaving screen
         return () => { ScreenOrientation.unlockAsync(); };
     }, []);
+
+    useEffect(() => {
+        if (score > 0) {
+            setRightScore(9 - rightDeductions - leftKnockdowns);
+            setLeftScore(10 - leftDeductions - rightKnockdowns);
+        } else if (score < 0) {
+            setLeftScore(9 - leftDeductions - rightKnockdowns);
+            setRightScore(10 - rightDeductions - leftKnockdowns);
+        } else {
+            setLeftScore(10 - leftDeductions - rightKnockdowns);
+            setRightScore(10 - rightDeductions - leftKnockdowns);
+        }
+    }, [score, rightDeductions, leftKnockdowns, leftDeductions, rightKnockdowns]);
 
     const pulseAnimation = (animation: Animated.Value) => {
         Animated.sequence([
