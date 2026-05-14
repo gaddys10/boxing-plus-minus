@@ -4,7 +4,6 @@ import { useRouter, useLocalSearchParams, router } from 'expo-router';
 
 export default function RoundRow({ roundNumber }: { roundNumber: number }) {
 
-
     return (
         <View style={styles.row}>
             <Text>RD {roundNumber}</Text>
@@ -28,8 +27,8 @@ export default function RoundRow({ roundNumber }: { roundNumber: number }) {
 const styles = StyleSheet.create({
     button: {
         backgroundColor: '#000',
-        paddingHorizontal: 18,
-        paddingVertical: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
         borderRadius: 12,
     },
     buttonText: {   
@@ -39,10 +38,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 5,
         borderColor: '#000',
         borderBottomWidth: 1,
-        paddingBottom: 10,
+        paddingBottom: 5,
     },
     leftRoundScore: {
         color: '#D32F2F',
