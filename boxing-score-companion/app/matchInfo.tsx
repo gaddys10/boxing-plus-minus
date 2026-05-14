@@ -1,15 +1,29 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import RoundRow from './components/roundRow';
 
 export default function MatchInfoScreen() {
     const router = useRouter();
-    const { fighter1, fighter2, rounds } = useLocalSearchParams();
+    const { fighter1, fighter2, rounds, savedRound, savedLeftScore, savedRightScore } = useLocalSearchParams();
+    const [roundScores, setRoundScores] = useState<Record<number, { left: string; right: string }>>({});
     const [fighter1Name, setFighter1Name] = useState(fighter1);
     const [fighter2Name, setFighter2Name] = useState(fighter2);
     const [selectedRounds, setSelectedRounds] = useState(rounds);
 
+    useEffect(() => {
+        if (!savedRound || !savedLeftScore || !savedRightScore) return;
+
+        const roundNumber = Number(savedRound);
+
+        setRoundScores((currentScores) => ({
+            ...currentScores,
+            [roundNumber]: {
+                left: String(savedLeftScore),
+                right: String(savedRightScore),
+            },
+        }));
+    }, [savedRound, savedLeftScore, savedRightScore]);
 
     return (
         <View style={styles.container}>
@@ -29,7 +43,16 @@ export default function MatchInfoScreen() {
             <ScrollView style={styles.rowContainer}>
                 
                 {Array.from({ length: parseInt(rounds as string) }).map((_, index) => (
-                    <RoundRow key={index} roundNumber={index + 1} />
+                    // <RoundRow key={index} roundNumber={index + 1} />
+                    <RoundRow
+                        key={index}
+                        roundNumber={index + 1}
+                        leftScore={roundScores[index + 1]?.left}
+                        rightScore={roundScores[index + 1]?.right}
+                        fighter1={String(fighter1)}
+                        fighter2={String(fighter2)}
+                        rounds={String(rounds)}
+                    />
                 ))}
             </ScrollView>
             <Pressable 

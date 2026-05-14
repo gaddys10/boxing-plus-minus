@@ -1,23 +1,34 @@
 import React, {useState} from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams, router } from 'expo-router';
+import { router } from 'expo-router';
 
-export default function RoundRow({ roundNumber }: { roundNumber: number }) {
+type RoundRowProps = {
+        roundNumber: number;
+        leftScore?: string;
+        rightScore?: string;
+    };
 
+export default function RoundRow({ roundNumber, leftScore, rightScore, fighter1, fighter2, rounds }: RoundRowProps) {
     return (
         <View style={styles.row}>
             <Text>RD {roundNumber}</Text>
-            <Text style={styles.leftRoundScore}>-</Text>
+            <Text style={styles.leftRoundScore}>{leftScore ?? '-'}</Text>
             <Text style={styles.leftTotalScore}>-</Text>
             <Text style={styles.plusMinus}>-</Text>
             <Text style={styles.rightTotalScore}>-</Text>
-            <Text style={styles.rightRoundScore}>-</Text>
+            <Text style={styles.rightRoundScore}>{rightScore ?? '-'}</Text>
             <Pressable
                 style={styles.button}
                 onPress={() => router.push({
                     pathname: '/roundScoring',
-                    params: { roundNumber }
-                })}>
+                    params: {
+                        roundNumber: String(roundNumber),
+                        fighter1,
+                        fighter2,
+                        rounds,
+                    },
+                })}
+            >
                 <Text style={styles.buttonText}>Edit</Text>
             </Pressable>
         </View>
