@@ -32,6 +32,9 @@ export default function MatchInfoScreen() {
         setRoundScores(currentScores);
     }, [savedScores, savedRound, savedLeftScore, savedRightScore]);
 
+    const isRoundScored = (roundNumber: number) => {
+    return !!roundScores[roundNumber]?.left && !!roundScores[roundNumber]?.right;
+};
 
     const getTotalScore = (side: 'left' | 'right', currentRound: number) => {
         let total = 0;
@@ -84,9 +87,9 @@ export default function MatchInfoScreen() {
                             roundNumber={roundNumber}
                             leftScore={roundScores[roundNumber]?.left}
                             rightScore={roundScores[roundNumber]?.right}
-                            leftTotal={String(getTotalScore('left', roundNumber))}
-                            rightTotal={String(getTotalScore('right', roundNumber))}
-                            plusMinus={String(getPlusMinus(roundNumber))}
+                            leftTotal={isRoundScored(roundNumber) ? String(getTotalScore('left', roundNumber)) : '-'}
+                            rightTotal={isRoundScored(roundNumber) ? String(getTotalScore('right', roundNumber)) : '-'}
+                            plusMinus={isRoundScored(roundNumber) ? String(getPlusMinus(roundNumber)) : '-'}
                             fighter1={String(fighter1)}
                             fighter2={String(fighter2)}
                             rounds={String(rounds)}
