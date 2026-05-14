@@ -226,6 +226,7 @@ export default function RoundScoringScreen() {
                             fighter1: params.fighter1,
                             fighter2: params.fighter2,
                             rounds: params.rounds,
+                            savedScores: params.savedScores,
                             savedRound: String(round),
                             savedLeftScore: String(leftScore),
                             savedRightScore: String(rightScore),

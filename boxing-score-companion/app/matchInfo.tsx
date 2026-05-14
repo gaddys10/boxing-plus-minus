@@ -5,25 +5,58 @@ import RoundRow from './components/roundRow';
 
 export default function MatchInfoScreen() {
     const router = useRouter();
-    const { fighter1, fighter2, rounds, savedRound, savedLeftScore, savedRightScore } = useLocalSearchParams();
+    const { fighter1, fighter2, rounds, savedRound, savedLeftScore, savedRightScore, savedScores } = useLocalSearchParams();
+    
     const [roundScores, setRoundScores] = useState<Record<number, { left: string; right: string }>>({});
     const [fighter1Name, setFighter1Name] = useState(fighter1);
     const [fighter2Name, setFighter2Name] = useState(fighter2);
     const [selectedRounds, setSelectedRounds] = useState(rounds);
 
     useEffect(() => {
-        if (!savedRound || !savedLeftScore || !savedRightScore) return;
+        let currentScores: Record<number, { left: string; right: string }> = {};
+        if (savedScores) {
+            try {
+                currentScores = JSON.parse(String(savedScores));
+            } catch {
+                currentScores = {};
+            }
+        }
+        if (savedRound && savedLeftScore && savedRightScore) {
+            const roundNumber = Number(savedRound);
 
-        const roundNumber = Number(savedRound);
-
-        setRoundScores((currentScores) => ({
-            ...currentScores,
-            [roundNumber]: {
+            currentScores[roundNumber] = {
                 left: String(savedLeftScore),
                 right: String(savedRightScore),
-            },
-        }));
-    }, [savedRound, savedLeftScore, savedRightScore]);
+            };
+        }
+        setRoundScores(currentScores);
+    }, [savedScores, savedRound, savedLeftScore, savedRightScore]);
+
+
+    const getTotalScore = (side: 'left' | 'right', currentRound: number) => {
+        let total = 0;
+        for (let round = 1; round <= currentRound; round++) {
+            const score = roundScores[round]?.[side];
+
+            if (score) {
+                total += Number(score);
+            }
+        }
+        return total || '-';
+    };
+
+    const getPlusMinus = (currentRound: number) => {
+        const leftTotal = getTotalScore('left', currentRound);
+        const rightTotal = getTotalScore('right', currentRound);
+
+        if (leftTotal === '-' || rightTotal === '-') return '-';
+
+        const diff = Number(leftTotal) - Number(rightTotal);
+
+        if (diff > 0) return `+${diff}`;
+        if (diff < 0) return String(diff);
+        return '0';
+    };
 
     return (
         <View style={styles.container}>
@@ -33,27 +66,34 @@ export default function MatchInfoScreen() {
                 <Text style={[styles.fighterText, styles.fighter2Name]}>{fighter2}</Text>
             </View>
             <View style={styles.headerRow}>
-                    <Text style={[styles.headerText, styles.leftHeader]}>Total</Text>
                     <Text style={[styles.headerText, styles.leftHeader]}>Round</Text>
+                    <Text style={[styles.headerText, styles.leftHeader]}>Total</Text>
                     <Text style={styles.headerText}>+/-</Text>
-                    <Text style={[styles.headerText, styles.rightHeader]}>Round</Text>
                     <Text style={[styles.headerText, styles.rightHeader]}>Total</Text>
+                    <Text style={[styles.headerText, styles.rightHeader]}>Round</Text>
                 </View>
             
             <ScrollView style={styles.rowContainer}>
                 
-                {Array.from({ length: parseInt(rounds as string) }).map((_, index) => (
-                    // <RoundRow key={index} roundNumber={index + 1} />
-                    <RoundRow
-                        key={index}
-                        roundNumber={index + 1}
-                        leftScore={roundScores[index + 1]?.left}
-                        rightScore={roundScores[index + 1]?.right}
-                        fighter1={String(fighter1)}
-                        fighter2={String(fighter2)}
-                        rounds={String(rounds)}
-                    />
-                ))}
+                {Array.from({ length: parseInt(rounds as string) }).map((_, index) => {
+                    const roundNumber = index + 1;
+
+                    return (
+                        <RoundRow
+                            key={roundNumber}
+                            roundNumber={roundNumber}
+                            leftScore={roundScores[roundNumber]?.left}
+                            rightScore={roundScores[roundNumber]?.right}
+                            leftTotal={String(getTotalScore('left', roundNumber))}
+                            rightTotal={String(getTotalScore('right', roundNumber))}
+                            plusMinus={String(getPlusMinus(roundNumber))}
+                            fighter1={String(fighter1)}
+                            fighter2={String(fighter2)}
+                            rounds={String(rounds)}
+                            savedScores={JSON.stringify(roundScores)}
+                        />
+                    );
+                })}
             </ScrollView>
             <Pressable 
                 style={styles.button}

@@ -3,19 +3,26 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 
 type RoundRowProps = {
-        roundNumber: number;
-        leftScore?: string;
-        rightScore?: string;
-    };
+    roundNumber: number;
+    leftScore?: string;
+    rightScore?: string;
+    leftTotal?: string;
+    rightTotal?: string;
+    plusMinus?: string;
+    fighter1: string;
+    fighter2: string;
+    rounds: string;
+    savedScores: string;
+};
 
-export default function RoundRow({ roundNumber, leftScore, rightScore, fighter1, fighter2, rounds }: RoundRowProps) {
+export default function RoundRow({ roundNumber, leftScore, rightScore, leftTotal, rightTotal, plusMinus, fighter1, fighter2, rounds, savedScores }: RoundRowProps) {
     return (
         <View style={styles.row}>
             <Text>RD {roundNumber}</Text>
             <Text style={styles.leftRoundScore}>{leftScore ?? '-'}</Text>
-            <Text style={styles.leftTotalScore}>-</Text>
-            <Text style={styles.plusMinus}>-</Text>
-            <Text style={styles.rightTotalScore}>-</Text>
+            <Text style={styles.leftTotalScore}>{leftTotal ?? '-'}</Text>
+            <Text style={styles.plusMinus}>{plusMinus ?? '-'}</Text>
+            <Text style={styles.rightTotalScore}>{rightTotal ?? '-'}</Text>
             <Text style={styles.rightRoundScore}>{rightScore ?? '-'}</Text>
             <Pressable
                 style={styles.button}
@@ -26,6 +33,7 @@ export default function RoundRow({ roundNumber, leftScore, rightScore, fighter1,
                         fighter1,
                         fighter2,
                         rounds,
+                        savedScores,
                     },
                 })}
             >
