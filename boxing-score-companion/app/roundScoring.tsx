@@ -27,6 +27,8 @@ export default function RoundScoringScreen() {
     const rightDeductProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
     const exitProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
 
+    
+
     const startLongPressFill = (progress: Animated.Value, duration: number) => {
         progress.setValue(0);
         Animated.timing(progress, {
@@ -230,6 +232,7 @@ export default function RoundScoringScreen() {
                             savedRound: String(round),
                             savedLeftScore: String(leftScore),
                             savedRightScore: String(rightScore),
+                            savedPlusMinus: String(score),
                         },
                     });
                 }}
@@ -331,7 +334,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     leftArea: {
-        backgroundColor: '#307Fb6',
+        backgroundColor: '#b63030',
         height: '100%',
         width: '50%',
         position: 'absolute',
@@ -384,7 +387,7 @@ const styles = StyleSheet.create({
         paddingBottom: 10
     },
     rightArea: {
-        backgroundColor: '#b63030',
+        backgroundColor: '#307Fb6',
         height: '100%',
         width: '50%',
         position: 'absolute',

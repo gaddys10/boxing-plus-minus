@@ -9,6 +9,7 @@ type RoundRowProps = {
     leftTotal?: string;
     rightTotal?: string;
     plusMinus?: string;
+    savedPlusMinus?: string;
     fighter1: string;
     fighter2: string;
     rounds: string;
@@ -16,12 +17,29 @@ type RoundRowProps = {
 };
 
 export default function RoundRow({ roundNumber, leftScore, rightScore, leftTotal, rightTotal, plusMinus, fighter1, fighter2, rounds, savedScores }: RoundRowProps) {
+    const plusMinusNumber = plusMinus && plusMinus !== '-' ? Number(plusMinus) : null;
+
+    const plusMinusDisplay =
+        plusMinusNumber === null
+            ? '-'
+            : plusMinusNumber < 0
+                ? String(Math.abs(plusMinusNumber))
+                : String(plusMinusNumber);
+
+    const plusMinusStyle =
+        plusMinusNumber === null
+            ? styles.plusMinus
+            : plusMinusNumber > 0
+                ? [styles.plusMinus, styles.redPlusMinus]
+                : plusMinusNumber < 0
+                    ? [styles.plusMinus, styles.bluePlusMinus]
+                    : styles.plusMinus;
     return (
         <View style={styles.row}>
             <Text>RD {roundNumber}</Text>
             <Text style={styles.leftRoundScore}>{leftScore ?? '-'}</Text>
             <Text style={styles.leftTotalScore}>{leftTotal ?? '-'}</Text>
-            <Text style={styles.plusMinus}>{plusMinus ?? '-'}</Text>
+            <Text style={plusMinusStyle}>{plusMinusDisplay}</Text>
             <Text style={styles.rightTotalScore}>{rightTotal ?? '-'}</Text>
             <Text style={styles.rightRoundScore}>{rightScore ?? '-'}</Text>
             <Pressable
@@ -44,6 +62,13 @@ export default function RoundRow({ roundNumber, leftScore, rightScore, leftTotal
 }
 
 const styles = StyleSheet.create({
+    redPlusMinus: {
+        color: '#D32F2F',
+    },
+
+    bluePlusMinus: {
+        color: '#1976D2',
+    },
     button: {
         backgroundColor: '#000',
         paddingHorizontal: 16,
