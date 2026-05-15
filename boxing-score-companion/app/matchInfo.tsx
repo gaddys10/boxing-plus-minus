@@ -63,6 +63,15 @@ export default function MatchInfoScreen() {
     const startLongPressFill = (progress: Animated.Value, duration: number) => {
         progress.setValue(0);
         Animated.timing(progress, {
+            toValue: 1,
+            duration,
+            useNativeDriver: false,
+        }).start();
+    };
+
+    const startLandscapeLongPressFill = (progress: Animated.Value, duration: number) => {
+        progress.setValue(0);
+        Animated.timing(progress, {
             toValue: 1.33,
             duration,
             useNativeDriver: false,
@@ -154,7 +163,7 @@ export default function MatchInfoScreen() {
                 onLongPress={() => 
                     router.push('/')
                 }
-                onPressIn={() => startLongPressFill(exitProgress, 3000)}
+                onPressIn={() => isLandscape ? startLandscapeLongPressFill(exitProgress, 3000) : startLongPressFill(exitProgress, 5000)}
                 onPressOut={() => resetLongPressFill(exitProgress)}
                 delayLongPress={3000}
             >
@@ -251,11 +260,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     button: {
-        backgroundColor: '#000',
+        backgroundColor: '#D32F2F',
         paddingHorizontal: 24,
         paddingVertical: 14,
         borderRadius: 12,
         overflow: 'hidden',
+        alignSelf: 'center',
+        alignItems: 'center',
+        bottom: 25
     },
     landscapeButton: {
         backgroundColor: '#D32F2F',
@@ -269,7 +281,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     buttonText: {
-        color: '#307Fb6',
+        color: '#fff',
         fontSize: 18,
         fontWeight: '700',
         zIndex: 1
