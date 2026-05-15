@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         padding: 24,
+        paddingTop: 75
     },
     landscapeContainer: {
         flex: 1,
