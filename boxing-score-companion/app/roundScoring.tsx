@@ -7,7 +7,6 @@ import * as Haptics from 'expo-haptics';
 
 export default function RoundScoringScreen() {
     const router = useRouter();
-    const { height } = useWindowDimensions();
     const [score, setScore] = useState(0);
     const [leftDeductions, setLeftDeductions] = useState(0);
     const [rightDeductions, setRightDeductions] = useState(0);
@@ -27,7 +26,8 @@ export default function RoundScoringScreen() {
     const rightDeductProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
     const exitProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
 
-    
+    const { width, height } = useWindowDimensions();
+    const isLandscape = width > height;
 
     const startLongPressFill = (progress: Animated.Value, duration: number) => {
         progress.setValue(0);
