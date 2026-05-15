@@ -197,8 +197,9 @@ const styles = StyleSheet.create({
     rowContainer: {
         flex: 1,
         marginBottom: 16,
-        marginHorizontal: -24,
         paddingHorizontal: 15,
+        marginHorizontal: -24,
+
     },
     landscapeRowContainer: {
         flex: 1,
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 50,
-        width: '75%',
+        width: '85%',
         marginLeft: 27,
         marginHorizontal: 0,
     },
@@ -300,8 +301,8 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         marginHorizontal: 0,
         paddingBottom: 10,
-        marginLeft: 36,
-        width: '70%'
+        marginLeft: 40,
+        width: '75%'
     },
     landscapeHeaderRow: {
         flexDirection: 'row',

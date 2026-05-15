@@ -7,6 +7,12 @@ import * as Haptics from 'expo-haptics';
 
 export default function RoundScoringScreen() {
     const router = useRouter();
+    const params = useLocalSearchParams();
+    
+    const round = params.roundNumber;
+    const fighter1 = params.fighter1 || 'Fighter 1';
+    const fighter2 = params.fighter2 || 'Fighter 2';
+    
     const [score, setScore] = useState(0);
     const [leftDeductions, setLeftDeductions] = useState(0);
     const [rightDeductions, setRightDeductions] = useState(0);
@@ -14,9 +20,6 @@ export default function RoundScoringScreen() {
     const [rightKnockdowns, setRightKnockdowns] = useState(0);
     const [leftScore, setLeftScore] = useState(10);
     const [rightScore, setRightScore] = useState(10);
-    const params = useLocalSearchParams();
-
-    const round = params.roundNumber;
 
     const leftPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
     const rightPulseAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
@@ -122,7 +125,7 @@ export default function RoundScoringScreen() {
                 { score > 0 &&
                     <Text style={styles.leftScore}>{score}<Ionicons name="caret-back" size={24} color="white" /></Text>
                 }
-                <Text style={styles.leftName}>Fighter 1</Text>
+                <Text style={styles.leftName}>{fighter1}</Text>
                 <Animated.Text style={[ styles.plusSign, { transform: [{ scale: leftPulseAnim }] }]} >+</Animated.Text>
 
                 <Pressable
@@ -173,7 +176,7 @@ export default function RoundScoringScreen() {
                 { score < 0 &&
                     <Text style={styles.rightScore}><Ionicons name="caret-forward" size={24} color="white" />{absScore}</Text>
                 }
-                <Text style={styles.rightName}>Fighter 2</Text>
+                <Text style={styles.rightName}>{fighter2}</Text>
                 <Animated.Text style={[styles.plusSign, { transform: [{ scale: rightPulseAnim }] }]} >+</Animated.Text>
 
                 <Pressable
@@ -217,7 +220,7 @@ export default function RoundScoringScreen() {
             </Pressable>
             <Pressable
                 style={styles.exitButton}
-                onPressIn={() => startLongPressFill(exitProgress, 4000)}
+                onPressIn={() => startLongPressFill(exitProgress, 2500)}
                 onPressOut={() => resetLongPressFill(exitProgress)}
                 onLongPress={() => {
                     void tripleHaptic(Haptics.ImpactFeedbackStyle.Medium);
@@ -236,7 +239,7 @@ export default function RoundScoringScreen() {
                         },
                     });
                 }}
-                delayLongPress={4000}
+                delayLongPress={2500}
             >
                 <Animated.View style={[styles.fillOverlay, { width: exitProgress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
                 <Text style={styles.exitButtonText}>Hold to Save & Exit Round {round}</Text>
