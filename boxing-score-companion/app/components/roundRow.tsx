@@ -1,23 +1,60 @@
 import React, {useState} from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams, router } from 'expo-router';
+import { router } from 'expo-router';
 
-export default function RoundRow({ roundNumber }: { roundNumber: number }) {
+type RoundRowProps = {
+    roundNumber: number;
+    leftScore?: string;
+    rightScore?: string;
+    leftTotal?: string;
+    rightTotal?: string;
+    plusMinus?: string;
+    savedPlusMinus?: string;
+    fighter1: string;
+    fighter2: string;
+    rounds: string;
+    savedScores: string;
+};
 
+export default function RoundRow({ roundNumber, leftScore, rightScore, leftTotal, rightTotal, plusMinus, fighter1, fighter2, rounds, savedScores }: RoundRowProps) {
+    const plusMinusNumber = plusMinus && plusMinus !== '-' ? Number(plusMinus) : null;
+
+    const plusMinusDisplay =
+        plusMinusNumber === null
+            ? '-'
+            : plusMinusNumber < 0
+                ? String(Math.abs(plusMinusNumber))
+                : String(plusMinusNumber);
+
+    const plusMinusStyle =
+        plusMinusNumber === null
+            ? styles.plusMinus
+            : plusMinusNumber > 0
+                ? [styles.plusMinus, styles.redPlusMinus]
+                : plusMinusNumber < 0
+                    ? [styles.plusMinus, styles.bluePlusMinus]
+                    : styles.plusMinus;
     return (
         <View style={styles.row}>
             <Text>RD {roundNumber}</Text>
-            <Text style={styles.leftRoundScore}>-</Text>
-            <Text style={styles.leftTotalScore}>-</Text>
-            <Text style={styles.plusMinus}>-</Text>
-            <Text style={styles.rightTotalScore}>-</Text>
-            <Text style={styles.rightRoundScore}>-</Text>
+            <Text style={styles.leftRoundScore}>{leftScore ?? '-'}</Text>
+            <Text style={styles.leftTotalScore}>{leftTotal ?? '-'}</Text>
+            <Text style={plusMinusStyle}>{plusMinusDisplay}</Text>
+            <Text style={styles.rightTotalScore}>{rightTotal ?? '-'}</Text>
+            <Text style={styles.rightRoundScore}>{rightScore ?? '-'}</Text>
             <Pressable
                 style={styles.button}
                 onPress={() => router.push({
                     pathname: '/roundScoring',
-                    params: { roundNumber }
-                })}>
+                    params: {
+                        roundNumber: String(roundNumber),
+                        fighter1,
+                        fighter2,
+                        rounds,
+                        savedScores,
+                    },
+                })}
+            >
                 <Text style={styles.buttonText}>Edit</Text>
             </Pressable>
         </View>
@@ -25,6 +62,13 @@ export default function RoundRow({ roundNumber }: { roundNumber: number }) {
 }
 
 const styles = StyleSheet.create({
+    redPlusMinus: {
+        color: '#D32F2F',
+    },
+
+    bluePlusMinus: {
+        color: '#1976D2',
+    },
     button: {
         backgroundColor: '#000',
         paddingHorizontal: 16,

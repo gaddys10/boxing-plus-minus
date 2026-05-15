@@ -1,36 +1,131 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import RoundRow from './components/roundRow';
 
 export default function MatchInfoScreen() {
     const router = useRouter();
-    const { fighter1, fighter2, rounds } = useLocalSearchParams();
+    const { 
+        fighter1,
+        fighter2,
+        rounds,
+        savedRound,
+        savedLeftScore,
+        savedRightScore,
+        savedScores,
+        savedPlusMinus, 
+    } = useLocalSearchParams();
+    
+    type RoundScore = {
+        left: string;
+        right: string;
+        plusMinus: string;
+    };
+
+    const [roundScores, setRoundScores] = useState<Record<number, RoundScore>>({});
     const [fighter1Name, setFighter1Name] = useState(fighter1);
     const [fighter2Name, setFighter2Name] = useState(fighter2);
     const [selectedRounds, setSelectedRounds] = useState(rounds);
+    const [landscape, setLandscape] = useState(false);
 
+    const { width, height } = useWindowDimensions();
+    let isLandscape = width > height;
+    useEffect(() => {
+        setLandscape(isLandscape);
+    }, [height, width, isLandscape]);
+
+    useEffect(() => {
+        let currentScores: Record<number, RoundScore> = {};
+
+        if (savedScores) {
+            try {
+                currentScores = JSON.parse(String(savedScores));
+            } catch {
+                currentScores = {};
+            }
+        }
+
+        if (savedRound && savedLeftScore && savedRightScore && savedPlusMinus !== undefined) {
+            const roundNumber = Number(savedRound);
+
+            currentScores[roundNumber] = {
+                left: String(savedLeftScore),
+                right: String(savedRightScore),
+                plusMinus: String(savedPlusMinus),
+            };
+        }
+
+        setRoundScores(currentScores);
+    }, [savedScores, savedRound, savedLeftScore, savedRightScore, savedPlusMinus]);
+
+    const isRoundScored = (roundNumber: number) => {
+        return !!roundScores[roundNumber]?.left && !!roundScores[roundNumber]?.right;
+    };
+
+    const getTotalScore = (side: 'left' | 'right', currentRound: number) => {
+        let total = 0;
+        for (let round = 1; round <= currentRound; round++) {
+            const score = roundScores[round]?.[side];
+
+            if (score) {
+                total += Number(score);
+            }
+        }
+        return total || '-';
+    };
+
+    const getPlusMinus = (currentRound: number) => {
+        const leftTotal = getTotalScore('left', currentRound);
+        const rightTotal = getTotalScore('right', currentRound);
+
+        if (leftTotal === '-' || rightTotal === '-') return '-';
+
+        const diff = Number(leftTotal) - Number(rightTotal);
+
+        if (diff > 0) return `+${diff}`;
+        if (diff < 0) return String(diff);
+        return '0';
+    };
 
     return (
-        <View style={styles.container}>
+        <View style={isLandscape ? styles.landscapeContainer : styles.container}>
             <View style={styles.topDescription}>
-                <Text style={[styles.fighterText, styles.fighter1Name]}>{fighter1}</Text>
-                <Text style={[styles.fighterText, styles.vsText]}>vs</Text>
-                <Text style={[styles.fighterText, styles.fighter2Name]}>{fighter2}</Text>
+                <Text style={isLandscape ? [styles.landscapeFighterText, styles.landscapeFighter1Name] : [styles.fighterText, styles.fighter1Name]}>{fighter1}</Text>
+                <Text style={isLandscape ? [styles.landscapeFighterText, styles.landscapeVsText] : [styles.fighterText, styles.vsText]}>vs</Text>
+                <Text style={isLandscape ? [styles.landscapeFighterText, styles.landscapeFighter2Name] : [styles.fighterText, styles.fighter2Name]}>{fighter2}</Text>
             </View>
-            <View style={styles.headerRow}>
-                    <Text style={[styles.headerText, styles.leftHeader]}>Total</Text>
+            <View style={isLandscape ? styles.landscapeHeaderRow : styles.headerRow}>
                     <Text style={[styles.headerText, styles.leftHeader]}>Round</Text>
+                    <Text style={[styles.headerText, styles.leftHeader]}>Total</Text>
                     <Text style={styles.headerText}>+/-</Text>
-                    <Text style={[styles.headerText, styles.rightHeader]}>Round</Text>
                     <Text style={[styles.headerText, styles.rightHeader]}>Total</Text>
+                    <Text style={[styles.headerText, styles.rightHeader]}>Round</Text>
                 </View>
             
             <ScrollView style={styles.rowContainer}>
                 
-                {Array.from({ length: parseInt(rounds as string) }).map((_, index) => (
-                    <RoundRow key={index} roundNumber={index + 1} />
-                ))}
+                {Array.from({ length: parseInt(rounds as string) }).map((_, index) => {
+                    const roundNumber = index + 1;
+                    const savedPlusMinusForRound = Number(savedRound) === roundNumber && savedPlusMinus ? savedPlusMinus : undefined;
+
+                    return (
+                        <RoundRow
+                            key={roundNumber}
+                            roundNumber={roundNumber}
+                            leftScore={roundScores[roundNumber]?.left}
+                            rightScore={roundScores[roundNumber]?.right}
+                            leftTotal={isRoundScored(roundNumber) ? String(getTotalScore('left', roundNumber)) : '-'}
+                            rightTotal={isRoundScored(roundNumber) ? String(getTotalScore('right', roundNumber)) : '-'}
+                            // plusMinus={isRoundScored(roundNumber) ? String(getPlusMinus(roundNumber)) : '-'}
+                            plusMinus={isRoundScored(roundNumber) ? roundScores[roundNumber]?.plusMinus : '-'}
+                            savedPlusMinus={savedPlusMinusForRound}
+                            fighter1={String(fighter1)}
+                            fighter2={String(fighter2)}
+                            rounds={String(rounds)}
+                            savedScores={JSON.stringify(roundScores)}
+                        />
+                    );
+                })}
             </ScrollView>
             <Pressable 
                 style={styles.button}
@@ -44,6 +139,11 @@ export default function MatchInfoScreen() {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        padding: 24,
+    },
+    landscapeContainer: {
         flex: 1,
         backgroundColor: '#fff',
         padding: 24,
@@ -114,6 +214,16 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+        marginHorizontal: 0,
+        paddingBottom: 10,
+        marginLeft: 36,
+        width: '70%'
+    },
+    landscapeHeaderRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

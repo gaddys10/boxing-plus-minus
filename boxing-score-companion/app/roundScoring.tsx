@@ -27,6 +27,8 @@ export default function RoundScoringScreen() {
     const rightDeductProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
     const exitProgress = useRef<Animated.Value>(new Animated.Value(0)).current;
 
+    
+
     const startLongPressFill = (progress: Animated.Value, duration: number) => {
         progress.setValue(0);
         Animated.timing(progress, {
@@ -219,12 +221,25 @@ export default function RoundScoringScreen() {
                 onPressOut={() => resetLongPressFill(exitProgress)}
                 onLongPress={() => {
                     void tripleHaptic(Haptics.ImpactFeedbackStyle.Medium);
-                    router.back();
+
+                    router.replace({
+                        pathname: '/matchInfo',
+                        params: {
+                            fighter1: params.fighter1,
+                            fighter2: params.fighter2,
+                            rounds: params.rounds,
+                            savedScores: params.savedScores,
+                            savedRound: String(round),
+                            savedLeftScore: String(leftScore),
+                            savedRightScore: String(rightScore),
+                            savedPlusMinus: String(score),
+                        },
+                    });
                 }}
                 delayLongPress={4000}
             >
                 <Animated.View style={[styles.fillOverlay, { width: exitProgress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
-                <Text style={styles.exitButtonText}>Hold to Exit Round {round}</Text>
+                <Text style={styles.exitButtonText}>Hold to Save & Exit Round {round}</Text>
             </Pressable>
         </View>
     );
@@ -281,14 +296,14 @@ const styles = StyleSheet.create({
     },
     exitButton: {
         backgroundColor: 'gold',
-        width: 200,
+        width: 225,
         height: 75,
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: 36,
         top: '-12%',
-        left: '47%',
+        left: '45%',
         transform: [{ translateX: -75 }],
         overflow: 'hidden',
     },
@@ -319,7 +334,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     leftArea: {
-        backgroundColor: '#307Fb6',
+        backgroundColor: '#b63030',
         height: '100%',
         width: '50%',
         position: 'absolute',
@@ -372,7 +387,7 @@ const styles = StyleSheet.create({
         paddingBottom: 10
     },
     rightArea: {
-        backgroundColor: '#b63030',
+        backgroundColor: '#307Fb6',
         height: '100%',
         width: '50%',
         position: 'absolute',
