@@ -148,7 +148,7 @@ export default function MatchInfoScreen() {
                             rightTotal={isRoundScored(roundNumber) ? String(getTotalScore('right', roundNumber)) : '-'}
                             // plusMinus={isRoundScored(roundNumber) ? String(getPlusMinus(roundNumber)) : '-'}
                             plusMinus={isRoundScored(roundNumber) ? roundScores[roundNumber]?.plusMinus : '-'}
-                            savedPlusMinus={savedPlusMinusForRound}
+                            // savedPlusMinus={savedPlusMinusForRound}
                             fighter1={String(fighter1)}
                             fighter2={String(fighter2)}
                             rounds={String(rounds)}
@@ -161,7 +161,7 @@ export default function MatchInfoScreen() {
                 style={isLandscape ? styles.landscapeButton : styles.button}
                 // onPress={() => router.push('/')}
                 onLongPress={() => 
-                    router.push('/')
+                    router.push('/createMatch')
                 }
                 onPressIn={() => isLandscape ? startLandscapeLongPressFill(exitProgress, 3000) : startLongPressFill(exitProgress, 5000)}
                 onPressOut={() => resetLongPressFill(exitProgress)}
@@ -169,7 +169,7 @@ export default function MatchInfoScreen() {
             >
                 <Animated.View 
                     style={[styles.fillOverlay, { width: exitProgress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
-                <Text style={isLandscape ? styles.landscapeButtonText : styles.buttonText}>Hold to Exit Fight</Text>
+                <Text style={isLandscape ? styles.landscapeButtonText : styles.buttonText}>Hold to Save & Exit Match</Text>
             </Pressable>
         </View>
     );
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     },
     landscapeRowContainer: {
         flex: 1,
-        marginBottom: 16,
+        marginBottom: 15,
         marginHorizontal: -24,
         paddingHorizontal: 15,
     },
@@ -308,9 +308,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 10,
         paddingBottom: 10,
-        width: '78%',
+        width: '77%',
         alignSelf: 'center',
     },
     fillOverlay: {
